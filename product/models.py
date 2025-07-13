@@ -44,12 +44,16 @@ class Product(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
+            print(f"Slugifying {self.name}")
             self.slug = slugify(self.name)
+            print(f"Slugified {self.slug}")
         super().save(*args, **kwargs)
 
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, related_name='images', on_delete=models.CASCADE)
     image = models.ImageField(upload_to='product_images/')
+    def __str__(self):
+        return str(self.image.path)
     alt_text = models.CharField(max_length=255, blank=True)
     is_primary = models.BooleanField(default=False)
 
