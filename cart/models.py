@@ -12,8 +12,8 @@ class Cart(models.Model):
 
     def __str__(self):
         if self.customer:
-            return f"Cart ({self.customer})"
-        return f"Cart ({self.uuid})"
+            return f"Cart ({self.customer}) #{self.uuid}"
+        return f"Cart #{self.uuid}"
 
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, related_name='items', on_delete=models.CASCADE)
