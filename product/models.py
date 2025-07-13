@@ -1,7 +1,8 @@
 from django.db import models
 from django.utils.text import slugify
 from mptt.models import MPTTModel, TreeForeignKey
-
+from django.contrib.postgres.indexes import GinIndex
+from django.contrib.postgres.search import SearchVector
 # Create your models here.
 
 class Category(MPTTModel):
@@ -44,10 +45,19 @@ class Product(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            print(f"Slugifying {self.name}")
             self.slug = slugify(self.name)
-            print(f"Slugified {self.slug}")
         super().save(*args, **kwargs)
+
+    # class Meta:
+    #     indexes = [
+    #         GinIndex(
+    #             expressions=[SearchVector('name', 'description', 'slug')],
+    #             name='product_search_vector_idx',
+    #         )
+    #     ]
+        # indexes = [
+        #     GinIndex(fields=["name", "slug", "description"]),
+        # ]
 
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, related_name='images', on_delete=models.CASCADE)
