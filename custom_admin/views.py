@@ -6,6 +6,7 @@ from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 from django.urls import reverse_lazy
 from django.db.models import Sum, Count, F, Q
+from django.core.paginator import Paginator
 from datetime import datetime, timedelta
 from decimal import Decimal
 from collections import defaultdict
@@ -171,12 +172,17 @@ def admin_products(request):
     # Get distinct products (in case of variant filtering) and prefetch related data
     products = products.distinct().prefetch_related('variants')
     
+    # Pagination
+    paginator = Paginator(products, 10)  # Show 10 products per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
     # Get all categories for filter dropdown
     categories = Category.objects.all()
     
-    # Create a list of products with their total stock
+    # Create a list of paginated products with their total stock
     product_list = []
-    for product in products:
+    for product in page_obj.object_list:
         total_stock = sum(variant.stock for variant in product.variants.all())
         product_list.append({
             'product': product,
@@ -190,6 +196,7 @@ def admin_products(request):
         'search_query': search_query,
         'selected_category': int(category_id) if category_id else '',
         'in_stock_filter': in_stock or 'all',
+        'page_obj': page_obj,
     }
     
     return render(request, 'admin/products.html', context)
