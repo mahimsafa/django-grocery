@@ -14,7 +14,7 @@ class Customer(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.first_name or self.last_name or self.email or f"Customer {str(self.id)}"
+        return (self.first_name or self.last_name or self.email or f"Customer {str(self.id)}") + " " + (str(self.id)[:8])
 
 class Address(models.Model):
     customer = models.ForeignKey(Customer, related_name='addresses', on_delete=models.CASCADE)
