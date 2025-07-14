@@ -6,16 +6,36 @@
 {% block page_title %}Products{% endblock %}
 
 {% block content %}
-<div class="mb-6 flex justify-between items-center">
-    <div class="flex-1 max-w-md">
-        <div class="relative">
-            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <i class="fas fa-search text-gray-400"></i>
+<div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
+    <div class="flex-1 max-w-md w-full">
+        <form method="get" action="{% url 'custom_admin:admin_products' %}" class="flex space-x-2">
+            <div class="relative flex-1">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fas fa-search text-gray-400"></i>
+                </div>
+                <input type="text" name="q" value="{{ search_query }}" class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="Search products...">
             </div>
-            <input type="text" class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="Search products...">
-        </div>
+            <div>
+                <select name="category" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
+                    <option value="">All Categories</option>
+                    {% for category in categories %}
+                        <option value="{{ category.id }}" {% if selected_category == category.id %}selected{% endif %}>{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <select name="in_stock" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
+                    <option value="all" {% if in_stock_filter == 'all' %}selected{% endif %}>All Stock</option>
+                    <option value="in_stock" {% if in_stock_filter == 'in_stock' %}selected{% endif %}>In Stock</option>
+                    <option value="out_of_stock" {% if in_stock_filter == 'out_of_stock' %}selected{% endif %}>Out of Stock</option>
+                </select>
+            </div>
+            <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                <i class="fas fa-filter mr-2"></i> Filter
+            </button>
+        </form>
     </div>
-    <a href="#" class="ml-3 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+    <a href="#" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
         <i class="fas fa-plus mr-2"></i> Add Product
     </a>
 </div>
@@ -32,7 +52,7 @@
                         Category
                     </th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Price
+                        Price Range
                     </th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Stock
@@ -46,36 +66,84 @@
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-                {% for i in "10"|make_list %}
-                <tr>
+                {% for item in product_list %}
+                {% with product=item.product %}
+                <tr class="hover:bg-gray-50">
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="flex items-center">
                             <div class="flex-shrink-0 h-10 w-10">
-                                <img class="h-10 w-10 rounded-full" src="https://via.placeholder.com/40" alt="">
+                                {% with product.images.first as image %}
+                                <img class="h-10 w-10 rounded-md object-cover" 
+                                     src="{% if image %}{{ image.image.url }}{% else %}https://via.placeholder.com/40{% endif %}" 
+                                     alt="{{ product.name }}">
+                                {% endwith %}
                             </div>
                             <div class="ml-4">
-                                <div class="text-sm font-medium text-gray-900">Product {{ forloop.counter }}</div>
-                                <div class="text-sm text-gray-500">SKU: PRD{{ forloop.counter|stringformat:"04d" }}</div>
+                                <div class="text-sm font-medium text-gray-900">
+                                    <a href="#" class="hover:text-blue-600">{{ product.name }}</a>
+                                </div>
+                                <div class="text-sm text-gray-500">
+                                    {{ product.brand.name|default:"No Brand" }}
+                                </div>
                             </div>
                         </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm text-gray-900">Category {{ forloop.counter|add:1|divisibleby:3|yesno:'Electronics,Clothing,Food' }}</div>
+                        <div class="text-sm text-gray-900">{{ product.category.name|default:"-" }}</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm text-gray-900">${{ forloop.counter|add:9|mul:10 }}</div>
+                        {% with variants=product.variants.all %}
+                            {% if variants %}
+                                {% with min_price=variants.0.price max_price=variants.0.price %}
+                                    {% for variant in variants %}
+                                        {% if variant.price < min_price %}
+                                            {% with min_price=variant.price %}{% endwith %}
+                                        {% endif %}
+                                        {% if variant.price > max_price %}
+                                            {% with max_price=variant.price %}{% endwith %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    <div class="text-sm text-gray-900">
+                                        ${{ min_price|floatformat:2 }}{% if min_price != max_price %} - ${{ max_price|floatformat:2 }}{% endif %}
+                                    </div>
+                                {% endwith %}
+                            {% else %}
+                                <div class="text-sm text-gray-500">No variants</div>
+                            {% endif %}
+                        {% endwith %}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm text-gray-900">{{ forloop.counter|add:20 }}</div>
+                        <div class="text-sm {% if item.total_stock == 0 %}text-red-600 font-medium{% elif item.has_low_stock %}text-yellow-600{% else %}text-gray-900{% endif %}">
+                            {{ item.total_stock }} in stock
+                        </div>
+                        <div class="text-xs text-gray-500">
+                            {{ product.variants.count }} variant{{ product.variants.count|pluralize }}
+                        </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                            In Stock
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                            {% if product.is_active %}
+                                bg-green-100 text-green-800
+                            {% else %}
+                                bg-gray-100 text-gray-800
+                            {% endif %}">
+                            {{ product.is_active|yesno:"Active,Inactive" }}
                         </span>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <a href="#" class="text-blue-600 hover:text-blue-900 mr-3"><i class="fas fa-edit"></i></a>
-                        <a href="#" class="text-red-600 hover:text-red-900"><i class="fas fa-trash"></i></a>
+                        <a href="#" class="text-blue-600 hover:text-blue-900 mr-4" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <a href="#" class="text-red-600 hover:text-red-900" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endwith %}
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">
+                        No products found. <a href="#" class="text-blue-600 hover:text-blue-800">Add your first product</a>
                     </td>
                 </tr>
                 {% endfor %}
