@@ -237,6 +237,11 @@ def admin_orders(request):
             Q(customer__last_name__icontains=search)
         )
     
+    # Pagination
+    paginator = Paginator(orders, 10)  # Show 10 orders per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
     # Get order status choices for filter dropdown
     status_choices = [
         {'value': 'all', 'label': 'All Statuses'},
@@ -245,7 +250,8 @@ def admin_orders(request):
     ]
     
     context = {
-        'orders': orders,
+        'page_obj': page_obj,
+        'orders': page_obj.object_list,  # Use paginated orders
         'status_choices': status_choices,
         'current_status': status,
         'date_from': date_from or '',
@@ -277,17 +283,28 @@ def admin_customers(request):
             Q(phone__icontains=search_query)
         )
     
-    # Get customer statistics
+    # Get customer statistics before pagination
     total_customers = customers.count()
     new_customers = customers.filter(
         created_at__date__gte=datetime.now().date() - timedelta(days=30)
     ).count()
     
+    # Pagination
+    paginator = Paginator(customers, 10)  # Show 10 customers per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    # Get active filter for pagination links
+    active_filter = request.GET.get('status', '')
+    
     context = {
-        'customers': customers,
+        'page_obj': page_obj,
+        'customers': page_obj.object_list,  # Use paginated customers
         'total_customers': total_customers,
         'new_customers': new_customers,
         'search_query': search_query,
+        'active_filter': active_filter,
+        'paginator': paginator,
     }
     
     return render(request, 'admin/customers.html', context)
