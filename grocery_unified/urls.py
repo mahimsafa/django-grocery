@@ -18,8 +18,10 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('', include('custom_admin.urls')),  # Custom admin interface
+    path('admin/', admin.site.urls),  # Keep Django admin at a different URL
     path('api/', include('product.urls')),
+    # Remove customer admin URLs as they've been moved to custom_admin
 ]
 
 from django.conf import settings

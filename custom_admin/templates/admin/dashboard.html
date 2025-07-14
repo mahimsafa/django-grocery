@@ -1,0 +1,133 @@
+{% extends 'admin/base.html' %}
+{% load custom_filters %}
+
+{% block title %}Dashboard - Grocery Admin{% endblock %}
+
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <!-- Total Sales Card -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center">
+            <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                <i class="fas fa-dollar-sign text-2xl"></i>
+            </div>
+            <div class="ml-4">
+                <p class="text-gray-500">Total Sales</p>
+                <h3 class="text-2xl font-bold">$12,345</h3>
+                <p class="text-green-500 text-sm">+12% from last month</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Orders Card -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center">
+            <div class="p-3 rounded-full bg-green-100 text-green-600">
+                <i class="fas fa-shopping-cart text-2xl"></i>
+            </div>
+            <div class="ml-4">
+                <p class="text-gray-500">Total Orders</p>
+                <h3 class="text-2xl font-bold">1,234</h3>
+                <p class="text-green-500 text-sm">+5% from last month</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Products Card -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center">
+            <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
+                <i class="fas fa-boxes text-2xl"></i>
+            </div>
+            <div class="ml-4">
+                <p class="text-gray-500">Total Products</p>
+                <h3 class="text-2xl font-bold">567</h3>
+                <p class="text-green-500 text-sm">+8 new this week</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Customers Card -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center">
+            <div class="p-3 rounded-full bg-purple-100 text-purple-600">
+                <i class="fas fa-users text-2xl"></i>
+            </div>
+            <div class="ml-4">
+                <p class="text-gray-500">Total Customers</p>
+                <h3 class="text-2xl font-bold">4,321</h3>
+                <p class="text-green-500 text-sm">+24 new today</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Orders -->
+<div class="bg-white rounded-lg shadow p-6 mb-8">
+    <div class="flex justify-between items-center mb-6">
+        <h3 class="text-lg font-semibold">Recent Orders</h3>
+        <a href="{% url 'custom_admin:admin_products' %}" class="text-blue-600 hover:underline">View All</a>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for i in "12345"|make_list %}
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">#ORD{{ forloop.counter|stringformat:"04d" }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Customer {{ forloop.counter }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2025-07-{{ forloop.counter|stringformat:"02d" }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                            Completed
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${{ forloop.counter|mul:20|add:50 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Sales Chart -->
+<div class="bg-white rounded-lg shadow p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h3 class="text-lg font-semibold">Sales Overview</h3>
+        <div class="flex space-x-2">
+            <button class="px-3 py-1 text-sm rounded-md bg-blue-600 text-white">This Month</button>
+            <button class="px-3 py-1 text-sm rounded-md bg-gray-100 text-gray-600">Last Month</button>
+            <button class="px-3 py-1 text-sm rounded-md bg-gray-100 text-gray-600">This Year</button>
+        </div>
+    </div>
+    <div class="h-64">
+        <!-- Chart will be implemented with Chart.js or similar -->
+        <div class="flex items-center justify-center h-full bg-gray-50 rounded-md">
+            <p class="text-gray-500">Sales chart will be displayed here</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Multiplication filter for template
+document.addEventListener('DOMContentLoaded', function() {
+    window.django = window.django || {};
+    window.django.filters = window.django.filters || {};
+    window.django.filters.mul = function(value, arg) {
+        return value * arg;
+    };
+});
+</script>
+{% endblock %}
