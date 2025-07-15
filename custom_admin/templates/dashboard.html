@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Custom Admin{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <!-- Statistics Cards -->
+    <div class="bg-white p-6 rounded-lg shadow">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-600">Total Users</p>
+                <p class="text-3xl font-bold text-blue-600">{{ total_users }}</p>
+            </div>
+            <div class="bg-blue-100 p-3 rounded-full">
+                <i class="fas fa-users text-blue-600 text-2xl"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white p-6 rounded-lg shadow">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-600">Active Users</p>
+                <p class="text-3xl font-bold text-green-600">{{ active_users }}</p>
+            </div>
+            <div class="bg-green-100 p-3 rounded-full">
+                <i class="fas fa-user-check text-green-600 text-2xl"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white p-6 rounded-lg shadow">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-600">Staff Members</p>
+                <p class="text-3xl font-bold text-purple-600">{{ staff_users }}</p>
+            </div>
+            <div class="bg-purple-100 p-3 rounded-full">
+                <i class="fas fa-user-tie text-purple-600 text-2xl"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activities -->
+<div class="mt-6">
+    <div class="bg-white p-6 rounded-lg shadow">
+        <h2 class="text-xl font-bold mb-4">Recent Activities</h2>
+        <div class="space-y-4">
+            {% for activity in recent_activities %}
+            <div class="flex items-center justify-between p-4 bg-gray-50 rounded">
+                <div>
+                    <p class="font-medium">{{ activity.action }}</p>
+                    <p class="text-sm text-gray-600">{{ activity.timestamp }}</p>
+                </div>
+                <div class="flex items-center">
+                    <i class="fas fa-{{ activity.icon }} text-gray-400 text-lg"></i>
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-center text-gray-500">No recent activities</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

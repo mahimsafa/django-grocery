@@ -18,9 +18,9 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
-    # path('', include('custom_admin.urls')),  #Custom admin interface
-    path('admin/', admin.site.urls),  #Keep Django admin at a different URL
+    path('admin/', admin.site.urls),
     path('api/product/', include('product.urls')),
+    path('custom_admin/', include('custom_admin.urls')),
 ]
 
 from django.conf import settings
