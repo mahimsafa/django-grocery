@@ -72,7 +72,7 @@
                             </div>
                             <div class="ml-4">
                                 <div class="text-sm font-medium text-gray-900">
-                                    <a href="#" class="hover:text-blue-600">
+                                    <a href="{% url 'custom_admin:admin_customer_detail' customer.id %}" class="hover:text-blue-600">
                                         {{ customer.first_name }} {{ customer.last_name }}
                                     </a>
                                 </div>

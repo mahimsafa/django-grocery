@@ -1,0 +1,118 @@
+{% extends 'admin/base.html' %}
+{% load i18n custom_filters %}
+
+{% block title %}{{ customer.first_name }} {{ customer.last_name }} - Customer Details - Grocery Admin{% endblock %}
+
+{% block page_title %}{{ customer.first_name }} {{ customer.last_name }} - Customer Details{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow overflow-hidden sm:rounded-lg mb-8">
+    <div class="px-4 py-5 sm:px-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">Customer Information</h3>
+        <p class="mt-1 max-w-2xl text-sm text-gray-500">View and manage customer details</p>
+    </div>
+    <div class="border-t border-gray-200">
+        <dl>
+            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500">Full Name</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                    {{ customer.first_name }} {{ customer.last_name }}
+                </dd>
+            </div>
+            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500">Email</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                    {{ customer.email }}
+                </dd>
+            </div>
+            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500">Phone</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                    {{ customer.phone|default:"Not provided" }}
+                </dd>
+            </div>
+            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500">Created At</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                    {{ customer.created_at|date:"F j, Y" }}
+                </dd>
+            </div>
+            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500">Total Orders</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                    {{ orders.count }}
+                </dd>
+            </div>
+        </dl>
+    </div>
+</div>
+
+<!-- Addresses Section -->
+<div class="bg-white shadow overflow-hidden sm:rounded-lg mb-8">
+    <div class="px-4 py-5 sm:px-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">Addresses</h3>
+    </div>
+    <div class="border-t border-gray-200">
+        {% for address in addresses %}
+        <div class="px-4 py-5 sm:px-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h4 class="text-sm font-medium text-gray-900">{{ address.title }}</h4>
+                    <p class="text-sm text-gray-500">{{ address.street }}, {{ address.city }}, {{ address.state }}</p>
+                    <p class="text-sm text-gray-500">{{ address.postcode }}, {{ address.get_country_display }}</p>
+                </div>
+                <div class="flex space-x-2">
+                    <a href="#" class="text-sm text-blue-600 hover:text-blue-900">Edit</a>
+                    <a href="#" class="text-sm text-red-600 hover:text-red-900">Delete</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="px-4 py-5 sm:px-6">
+            <p class="text-sm text-gray-500">No addresses added yet</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Recent Orders Section -->
+<div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <div class="px-4 py-5 sm:px-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">Recent Orders</h3>
+    </div>
+    <div class="border-t border-gray-200">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for order in recent_orders %}
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <a href="{% url 'custom_admin:admin_order_detail' order.id %}" class="text-blue-600 hover:text-blue-900">#{{ order.id }}</a>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">{{ order.created_at|date:"F j, Y" }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {% if order.status == 'completed' %}bg-green-100 text-green-800{% elif order.status == 'pending' %}bg-yellow-100 text-yellow-800{% else %}bg-red-100 text-red-800{% endif %}">
+                            {{ order.get_status_display }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">{{ order.grand_total|currency }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="px-6 py-4 whitespace-nowrap text-center">
+                        <p class="text-sm text-gray-500">No orders yet</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

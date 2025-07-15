@@ -16,6 +16,7 @@ urlpatterns = [
     path('products/', login_required(views.admin_products), name='admin_products'),
     path('orders/', login_required(views.admin_orders), name='admin_orders'),
     path('customers/', login_required(views.admin_customers), name='admin_customers'),
+    path('customers/<uuid:customer_id>/', login_required(views.admin_customer_detail), name='admin_customer_detail'),
     
     # Redirect root URL to dashboard if authenticated, otherwise to login
     path('', login_required(views.admin_dashboard), name='admin'),

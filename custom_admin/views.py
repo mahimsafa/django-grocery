@@ -103,7 +103,38 @@ def admin_dashboard(request):
         .annotate(items_sold=Sum('quantity'))
         .order_by('-items_sold')[:5]
     )
+
+    # Get the products for these variants
+    top_products = Product.objects.filter(
+        variants__in=top_variants.values('variant__product')
+    ).distinct()
+
+@login_required
+def admin_customer_detail(request, customer_id):
+    """Admin customer detail view"""
+    if not request.user.is_staff:
+        return redirect('custom_admin:admin_login')
     
+    customer = get_object_or_404(Customer, id=customer_id)
+    
+    # Get customer's orders
+    orders = Order.objects.filter(customer=customer).order_by('-created_at')
+    
+    # Get customer's addresses
+    addresses = customer.addresses.all()
+    
+    # Get recent activity
+    recent_orders = orders[:5]
+    
+    context = {
+        'customer': customer,
+        'orders': orders,
+        'addresses': addresses,
+        'recent_orders': recent_orders,
+    }
+    
+    return render(request, 'admin/customer_detail.html', context)
+
     # Get the product IDs from the top variants
     product_ids = [item['variant__product'] for item in top_variants]
     
