@@ -25,7 +25,11 @@
             <tbody class="bg-white divide-y divide-gray-200">
                 {% for product in products %}
                 <tr>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ product.name }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 hover:text-blue-600 cursor-pointer">
+                        <a href="{% url 'custom_admin:product_detail' product.id %}">
+                            {{ product.name }}
+                        </a>
+                    </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ product.category.name }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${{ product.price }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ product.stock }}</td>

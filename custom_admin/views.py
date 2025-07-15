@@ -3,15 +3,12 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.views import View
 from django.contrib import messages
-from django.db.models import Count
-from django.utils import timezone
-from django.views.generic import ListView, CreateView
-from django.shortcuts import render
+from django.views.generic import ListView, CreateView, DetailView
 from django.urls import reverse_lazy
 from django.contrib import messages
 
 from product.models import Product, Category, Brand
-from order.models import Order
+from order.models import Order, OrderItem
 from .forms import CategoryForm, BrandForm
 
 # Create your views here.
@@ -66,6 +63,30 @@ class ProductListView(ListView):
     template_name = 'products.html'
     context_object_name = 'products'
     paginate_by = 12
+
+class ProductDetailView(DetailView):
+    model = Product
+    template_name = 'product_detail.html'
+    context_object_name = 'product'
+    slug_field = 'pk'
+    slug_url_kwarg = 'pk'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        product = self.get_object()
+
+        # Get related data
+        context['variants'] = product.variants.all()
+        context['images'] = product.images.all()
+        context['category'] = product.category
+        context['brand'] = product.brand
+
+        # Get recent orders for this product
+        context['recent_orders'] = OrderItem.objects.filter(
+            variant__product=product
+        ).select_related('order', 'variant').order_by('-order__created_at')[:5]
+
+        return context
 
 class CategoryCreateView(CreateView):
     model = Category
