@@ -1,6 +1,6 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
-from product.models import Category
+from product.models import Category, Brand
 
 
 class BaseAdminForm(forms.ModelForm):
@@ -12,7 +12,7 @@ class BaseAdminForm(forms.ModelForm):
         # Base styling classes
         text_input_class = 'px-1 py-2 block w-full border outline-none rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm'
         textarea_class = 'px-1 py-2 block w-full border outline-none rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm'
-        select_class = 'block w-full border outline-none rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm'
+        select_class = 'px-1 py-2 block w-full border outline-none rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm'
         checkbox_class = 'rounded outline-none border-gray-300 text-blue-600 focus:border-blue-500 focus:ring-blue-500'
         
         # Apply styling to all fields
@@ -40,7 +40,7 @@ class BaseAdminForm(forms.ModelForm):
 class CategoryForm(BaseAdminForm):
     class Meta:
         model = Category
-        fields = ['name', 'description']
+        fields = ['name', 'description', 'slug', 'parent']
         
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -54,3 +54,14 @@ class CategoryForm(BaseAdminForm):
         if name and len(name) < 3:
             raise forms.ValidationError(_('Name must be at least 3 characters long'))
         return name
+
+class BrandForm(BaseAdminForm):
+    class Meta:
+        model = Brand
+        fields = ['name', 'description']
+        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.add_placeholder('name', _('Enter brand name'))
+        self.add_placeholder('description', _('Enter brand description'))
+        self.fields['description'].widget.attrs.update({'rows': 3})

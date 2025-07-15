@@ -9,9 +9,10 @@ from django.views.generic import ListView, CreateView
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.contrib import messages
-from product.models import Product, Category
+
+from product.models import Product, Category, Brand
 from order.models import Order
-from .forms import CategoryForm
+from .forms import CategoryForm, BrandForm
 
 # Create your views here.
 
@@ -76,6 +77,18 @@ class CategoryListView(ListView):
     model = Category
     template_name = 'categories.html'
     context_object_name = 'categories'
+    paginate_by = 12
+
+class BrandCreateView(CreateView):
+    model = Brand
+    template_name = 'brand_create.html'
+    form_class = BrandForm
+    success_url = reverse_lazy('custom_admin:brands')
+
+class BrandListView(ListView):
+    model = Brand
+    template_name = 'brands.html'
+    context_object_name = 'brands'
     paginate_by = 12
 
 class OrderListView(ListView):
