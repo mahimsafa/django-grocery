@@ -11,6 +11,7 @@ from django.urls import reverse_lazy
 from django.contrib import messages
 from product.models import Product, Category
 from order.models import Order
+from .forms import CategoryForm
 
 # Create your views here.
 
@@ -68,7 +69,7 @@ class ProductListView(ListView):
 class CategoryCreateView(CreateView):
     model = Category
     template_name = 'category_create.html'
-    fields = ['name', 'description']
+    form_class = CategoryForm
     success_url = reverse_lazy('custom_admin:categories')
 
 class CategoryListView(ListView):
