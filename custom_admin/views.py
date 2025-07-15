@@ -92,6 +92,33 @@ class CategoryCreateView(CreateView):
     model = Category
     template_name = 'category_create.html'
     form_class = CategoryForm
+
+class OrderDetailView(DetailView):
+    model = Order
+    template_name = 'order_detail.html'
+    context_object_name = 'order'
+    slug_field = 'pk'
+    slug_url_kwarg = 'pk'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        order = self.get_object()
+
+        # Get related data
+        context['order_items'] = order.items.select_related('variant', 'variant__product').all()
+        context['customer'] = order.customer
+        context['shipping_address'] = order.shipping_address
+        context['billing_address'] = order.billing_address
+        
+        # Calculate totals
+        order_items = context['order_items']
+        context['subtotal'] = sum(item.total_price for item in order_items)
+        context['total'] = context['subtotal']
+
+        # Get payment status
+        context['order_status'] = order.get_status_display()
+
+        return context
     success_url = reverse_lazy('custom_admin:categories')
 
 class CategoryListView(ListView):
