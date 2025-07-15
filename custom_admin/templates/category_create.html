@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
 {% block title %}Create Category - Custom Admin{% endblock %}
 
@@ -14,48 +15,7 @@
     <form method="post" class="space-y-4">
         {% csrf_token %}
         
-        {{ form.non_field_errors }}
-        
-        {% for field in form %}
-        <div>
-            {{ field.label_tag }}
-            
-            {% if field.field.widget.input_type == 'text' %}
-            <div class="mt-1"> 
-                {{ field }}
-            </div>
-            {% elif field.field.widget.input_type == 'textarea' %}
-            <div class="mt-1">
-                {{ field }}
-            </div>
-            {% elif field.field.widget.input_type == 'checkbox' %}
-            <div class="mt-1">
-                <label class="inline-flex items-center">
-                    {{ field }}
-                    <span class="ml-2 text-sm text-gray-600">{{ field.label }}</span>
-                </label>
-            </div>
-            {% elif field.field.widget.input_type == 'select' %}
-            <div class="mt-1">
-                {{ field }}
-            </div>
-            {% else %}
-            <div class="mt-1">
-                {{ field }}
-            </div>
-            {% endif %}
-
-            {% if field.errors %}
-            <div class="text-red-600 text-sm mt-1">
-                {{ field.errors }}
-            </div>
-            {% endif %}
-
-            {% if field.help_text %}
-            <p class="text-gray-500 text-sm mt-1">{{ field.help_text }}</p>
-            {% endif %}
-        </div>
-        {% endfor %}
+        {% include 'includes/form.html' with form=form %}
 
         <div class="flex justify-end">
             <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
