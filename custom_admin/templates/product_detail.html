@@ -131,7 +131,7 @@
                         {% for order_item in recent_orders %}
                         <tr>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <a href="#" class="text-blue-600 hover:text-blue-800">#{{ order_item.order.id }}</a>
+                                <a href="{% url 'custom_admin:order_detail' order_item.order.id %}" class="text-blue-600 hover:text-blue-800">#{{ order_item.order.id }}</a>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 {{ order_item.order.customer.get_full_name }}

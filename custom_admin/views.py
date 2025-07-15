@@ -3,12 +3,14 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.views import View
 from django.contrib import messages
+from django.db.models import Count, Sum
 from django.views.generic import ListView, CreateView, DetailView
 from django.urls import reverse_lazy
 from django.contrib import messages
 
 from product.models import Product, Category, Brand
 from order.models import Order, OrderItem
+from customer.models import Customer
 from .forms import CategoryForm, BrandForm
 
 # Create your views here.
@@ -144,3 +146,37 @@ class OrderListView(ListView):
     template_name = 'orders.html'
     context_object_name = 'orders'
     paginate_by = 12
+
+
+class CustomerListView(ListView):
+    model = Customer
+    template_name = 'customers.html'
+    context_object_name = 'customers'
+    paginate_by = 12
+    
+class CustomerDetailView(DetailView):
+    model = Customer
+    template_name = 'customer_detail.html'
+    context_object_name = 'customer'
+    slug_field = 'pk'
+    slug_url_kwarg = 'pk'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        customer = self.get_object()
+
+        # Get recent orders
+        context['recent_orders'] = Order.objects.filter(
+            customer=customer
+        ).select_related('shipping_address', 'billing_address').order_by('-created_at')[:10]
+
+        # Calculate statistics
+        orders = Order.objects.filter(customer=customer)
+        context['total_orders'] = orders.count()
+        context['total_spent'] = orders.aggregate(Sum('grand_total'))['grand_total__sum'] or 0
+        if context['total_orders'] > 0:
+            context['average_order_value'] = context['total_spent'] / context['total_orders']
+        else:
+            context['average_order_value'] = 0
+
+        return context
