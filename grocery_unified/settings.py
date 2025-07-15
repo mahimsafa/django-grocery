@@ -58,7 +58,7 @@ INSTALLED_APPS = [
     'customer',
     'order',
     'cart',
-    'custom_admin',
+    # 'custom_admin',
 
     # Third party apps
     'rest_framework',
@@ -83,7 +83,7 @@ TEMPLATES = [
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
             os.path.join(BASE_DIR, 'templates'),
-            os.path.join(BASE_DIR, 'custom_admin/templates'),
+            # os.path.join(BASE_DIR, 'custom_admin/templates'),
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -160,8 +160,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # Authentication settings
-LOGIN_URL = 'custom_admin:admin_login'
-LOGIN_REDIRECT_URL = 'custom_admin:admin_dashboard'
+# LOGIN_URL = 'custom_admin:admin_login'
+# LOGIN_REDIRECT_URL = 'custom_admin:admin_dashboard'
 
 # REST Framework settings
 REST_FRAMEWORK = {
