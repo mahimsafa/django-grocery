@@ -40,7 +40,7 @@ class BaseAdminForm(forms.ModelForm):
 class CategoryForm(BaseAdminForm):
     class Meta:
         model = Category
-        fields = ['name', 'description', 'slug', 'parent']
+        fields = ['name', 'description', 'parent']
         
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
