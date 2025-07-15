@@ -11,7 +11,7 @@ from django.contrib import messages
 from product.models import Product, Category, Brand
 from order.models import Order, OrderItem
 from customer.models import Customer
-from .forms import CategoryForm, BrandForm, ProductForm, ProductImageForm, VariantForm
+from custom_admin.forms import CategoryForm, BrandForm, ProductForm, ProductImageForm, VariantForm
 
 # Create your views here.
 
@@ -90,6 +90,41 @@ class ProductDetailView(DetailView):
 
         return context
 
+class ProductEditView(View):
+    template_name = 'product_edit.html'
+
+    def get(self, request, pk):
+        product = get_object_or_404(Product, pk=pk)
+        variants = product.variants.all()
+        images = product.images.all()
+        
+        context = {
+            'product': product,
+            'variants': variants,
+            'images': images,
+            'brand_list': Brand.objects.all(),
+            'category_list': Category.objects.all(),
+            'api_base': reverse_lazy('custom_admin:api_product_detail', args=[pk])
+        }
+        return render(request, self.template_name, context)
+
+    def post(self, request, pk):
+        product = get_object_or_404(Product, pk=pk)
+        # Update product info
+        product.name = request.POST.get('name', product.name)
+        product.description = request.POST.get('description', product.description)
+        product.category_id = request.POST.get('category', product.category_id)
+        product.brand_id = request.POST.get('brand', product.brand_id)
+        product.save()
+        
+        # Handle image uploads
+        if 'images' in request.FILES:
+            for image in request.FILES.getlist('images'):
+                ProductImage.objects.create(product=product, image=image)
+        
+        messages.success(request, 'Product updated successfully')
+        return redirect('custom_admin:product_edit', pk=pk)
+
 class CategoryCreateView(CreateView):
     model = Category
     template_name = 'category_create.html'
@@ -147,7 +182,6 @@ class OrderListView(ListView):
     context_object_name = 'orders'
     paginate_by = 12
 
-
 class CustomerListView(ListView):
     model = Customer
     template_name = 'customers.html'
@@ -181,81 +215,3 @@ class CustomerDetailView(DetailView):
 
         return context
 
-class ProductEditView(View):
-    template_name = 'product_edit.html'
-
-    def get(self, request, pk):
-        product = get_object_or_404(Product, pk=pk)
-        variants = product.variants.all()
-        images = product.images.all()
-
-        product_form = ProductForm(instance=product)
-        variant_forms = [VariantForm(instance=variant) for variant in variants]
-        image_forms = [ProductImageForm(instance=image) for image in images]
-
-        context = {
-            'product': product,
-            'product_form': product_form,
-            'variant_forms': variant_forms,
-            'image_forms': image_forms,
-            'empty_variant_form': VariantForm(),
-            'empty_image_form': ProductImageForm()
-        }
-
-        return render(request, self.template_name, context)
-
-    def post(self, request, pk):
-        product = get_object_or_404(Product, pk=pk)
-        variants = product.variants.all()
-        images = product.images.all()
-
-        product_form = ProductForm(request.POST, instance=product)
-        variant_forms = [VariantForm(request.POST, instance=variant) for variant in variants]
-        image_forms = [ProductImageForm(request.POST, request.FILES, instance=image) for image in images]
-
-        if product_form.is_valid():
-            product = product_form.save()
-
-            # Handle variants
-            for variant_form in variant_forms:
-                if variant_form.is_valid():
-                    variant = variant_form.save(commit=False)
-                    variant.product = product
-                    variant.save()
-
-            # Handle images
-            for image_form in image_forms:
-                if image_form.is_valid():
-                    image = image_form.save(commit=False)
-                    image.product = product
-                    image.save()
-
-            # Handle new variants
-            if 'new_variant' in request.POST:
-                new_variant_form = VariantForm(request.POST, prefix='new_variant')
-                if new_variant_form.is_valid():
-                    variant = new_variant_form.save(commit=False)
-                    variant.product = product
-                    variant.save()
-
-            # Handle new images
-            if 'new_image' in request.POST:
-                new_image_form = ProductImageForm(request.POST, request.FILES, prefix='new_image')
-                if new_image_form.is_valid():
-                    image = new_image_form.save(commit=False)
-                    image.product = product
-                    image.save()
-
-            messages.success(request, 'Product updated successfully')
-            return redirect('custom_admin:product_edit', pk=pk)
-
-        context = {
-            'product': product,
-            'product_form': product_form,
-            'variant_forms': variant_forms,
-            'image_forms': image_forms,
-            'empty_variant_form': VariantForm(),
-            'empty_image_form': ProductImageForm()
-        }
-
-        return render(request, self.template_name, context)
