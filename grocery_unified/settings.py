@@ -58,7 +58,6 @@ INSTALLED_APPS = [
     'customer',
     'order',
     'cart',
-    # 'custom_admin',
 
     # Third party apps
     'rest_framework',
@@ -83,7 +82,6 @@ TEMPLATES = [
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
             os.path.join(BASE_DIR, 'templates'),
-            os.path.join(BASE_DIR, 'custom_admin/templates'),
         ],
         'APP_DIRS': True,
         'OPTIONS': {
