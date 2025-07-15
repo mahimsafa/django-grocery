@@ -109,6 +109,35 @@ def admin_dashboard(request):
         variants__in=top_variants.values('variant__product')
     ).distinct()
 
+    # Get the product IDs from the top variants
+    product_ids = [item['variant__product'] for item in top_variants]
+    
+    # Get the actual product objects in the same order
+    top_products = list(Product.objects.filter(id__in=product_ids).prefetch_related('images'))
+    
+    # Create a dictionary to store the total_sold for each product
+    product_sales = {item['variant__product']: item['items_sold'] for item in top_variants}
+    
+    # Annotate each product with its total_sold
+    for product in top_products:
+        product.total_sold = product_sales.get(product.id, 0)
+    
+    # Sort the products by total_sold in descending order
+    top_products = sorted(top_products, key=lambda x: x.total_sold, reverse=True)
+    
+    context = {
+        'total_sales': total_sales,
+        'sales_change_percentage': sales_change_percentage,
+        'total_orders': total_orders,
+        'new_customers': new_customers,
+        'total_products': total_products,
+        'low_stock_products': low_stock_products,
+        'recent_orders': recent_orders,
+        'top_products': top_products,
+    }
+    
+    return render(request, 'admin/dashboard.html', context)
+
 @login_required
 def admin_customer_detail(request, customer_id):
     """Admin customer detail view"""
@@ -158,36 +187,6 @@ def admin_order_detail(request, order_id):
     }
     
     return render(request, 'admin/order_detail.html', context)
-
-    # Get the product IDs from the top variants
-    product_ids = [item['variant__product'] for item in top_variants]
-    
-    # Get the actual product objects in the same order
-    top_products = list(Product.objects.filter(id__in=product_ids).prefetch_related('images'))
-    
-    # Create a dictionary to store the total_sold for each product
-    product_sales = {item['variant__product']: item['items_sold'] for item in top_variants}
-    
-    # Annotate each product with its total_sold
-    for product in top_products:
-        product.total_sold = product_sales.get(product.id, 0)
-    
-    # Sort the products by total_sold in descending order
-    top_products = sorted(top_products, key=lambda x: x.total_sold, reverse=True)
-    
-    context = {
-        'total_sales': total_sales,
-        'sales_change_percentage': sales_change_percentage,
-        'total_orders': total_orders,
-        'new_customers': new_customers,
-        'total_products': total_products,
-        'low_stock_products': low_stock_products,
-        'recent_orders': recent_orders,
-        'top_products': top_products,
-    }
-    
-    return render(request, 'admin/dashboard.html', context)
-
 
 @login_required
 def admin_products(request):
