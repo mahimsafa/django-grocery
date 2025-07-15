@@ -1,6 +1,6 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
-from product.models import Category, Brand
+from product.models import Category, Brand, Product, Variant, ProductImage
 
 
 class BaseAdminForm(forms.ModelForm):
@@ -65,3 +65,40 @@ class BrandForm(BaseAdminForm):
         self.add_placeholder('name', _('Enter brand name'))
         self.add_placeholder('description', _('Enter brand description'))
         self.fields['description'].widget.attrs.update({'rows': 3})
+
+class ProductForm(BaseAdminForm):
+    class Meta:
+        model = Product
+        fields = ['name', 'description', 'category', 'brand']
+        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.add_placeholder('name', _('Enter product name'))
+        self.add_placeholder('description', _('Enter product description'))
+        self.fields['description'].widget.attrs.update({'rows': 4})
+
+class VariantForm(BaseAdminForm):
+    class Meta:
+        model = Variant
+        fields = ['name', 'sku', 'price', 'sale_price', 'stock', 'is_active']
+        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.add_placeholder('name', _('Enter variant name'))
+        self.add_placeholder('sku', _('Enter SKU'))
+        self.add_placeholder('price', _('Enter price'))
+        self.add_placeholder('sale_price', _('Enter sale price'))
+        self.add_placeholder('stock', _('Enter stock quantity'))
+
+class ProductImageForm(BaseAdminForm):
+    class Meta:
+        model = ProductImage
+        fields = ['image', 'is_primary']
+        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['image'].widget.attrs.update({'class': 'block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400'})
+        self.add_placeholder('image', _('Upload product image'))
+        self.add_placeholder('is_primary', _('Check it if this is the primary image'))
+        self.fields['is_primary'].widget.attrs.update({'class': 'rounded outline-none border-gray-300 text-blue-600 focus:border-blue-500 focus:ring-blue-500'})
+        self.add_placeholder('alt_text', _('Enter alt text (optional)'))

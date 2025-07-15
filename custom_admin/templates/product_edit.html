@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Product - {{ product.name }}{% endblock %}
+
+{% block content %}
+<div class="bg-white p-8 rounded-lg shadow">
+    <!-- Header -->
+    <div class="mb-6">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold mb-2">Edit Product: {{ product.name }}</h1>
+                <div class="text-gray-600">
+                    <span class="mr-4">SKU: {{ product.sku }}</span>
+                    <span>Category: {{ product.category.name }}</span>
+                </div>
+            </div>
+            <div class="flex space-x-4">
+                <a href="{% url 'custom_admin:products' %}" class="text-blue-600 hover:text-blue-800">
+                    <i class="fas fa-arrow-left mr-2"></i> Back to Products
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Form -->
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <!-- Product Information -->
+        <div class="mb-8">
+            <h2 class="text-lg font-semibold mb-4">Product Information</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {{ product_form.as_p }}
+            </div>
+        </div>
+
+        <!-- Variants Section -->
+        <div class="mb-8">
+            <h2 class="text-lg font-semibold mb-4">Variants</h2>
+            
+            <!-- Existing Variants -->
+            <div class="mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {% for variant_form in variant_forms %}
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h3 class="font-medium mb-4">Variant: {{ variant_form.instance.name }}</h3>
+                        {{ variant_form.as_p }}
+                        <button type="submit" name="delete_variant" value="{{ variant_form.instance.id }}" 
+                                class="mt-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+                            Delete Variant
+                        </button>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Add New Variant -->
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <h3 class="font-medium mb-4">Add New Variant</h3>
+                {{ empty_variant_form.as_p }}
+                <button type="submit" name="new_variant" value="1" 
+                        class="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                    Add Variant
+                </button>
+            </div>
+        </div>
+
+        <!-- Images Section -->
+        <div class="mb-8">
+            <h2 class="text-lg font-semibold mb-4">Product Images</h2>
+            
+            <!-- Existing Images -->
+            <div class="mb-6">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {% for image_form in image_forms %}
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <div class="relative">
+                            <img src="{{ image_form.instance.image.url }}" alt="Product Image" 
+                                 class="w-full h-48 object-cover rounded-lg">
+                            <div class="mt-2">
+                                {{ image_form.as_p }}
+                                <button type="submit" name="delete_image" value="{{ image_form.instance.id }}" 
+                                        class="mt-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+                                    Delete Image
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Add New Image -->
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <h3 class="font-medium mb-4">Add New Image</h3>
+                {{ empty_image_form.as_p }}
+                <button type="submit" name="new_image" value="1" 
+                        class="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                    Add Image
+                </button>
+            </div>
+        </div>
+
+        <!-- Save Changes -->
+        <div class="mt-8">
+            <button type="submit" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700">
+                <i class="fas fa-save mr-2"></i> Save Changes
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
