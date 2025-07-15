@@ -67,7 +67,7 @@
                 <tr class="hover:bg-gray-50">
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="text-sm font-medium text-gray-900">
-                            <a href="#" class="hover:text-blue-600">#{{ order.order_number }}</a>
+                            <a href="{% url 'custom_admin:admin_order_detail' order.id %}" class="hover:text-blue-600">#{{ order.id }}</a>
                         </div>
                         <div class="text-sm text-gray-500">
                             {{ order.items.count }} item{{ order.items.count|pluralize }}
@@ -81,13 +81,13 @@
                             {{ order.customer.email }}
                         </div>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
+                    <!-- <td class="px-6 py-4 whitespace-nowrap">
                         <a href="{% url 'custom_admin:admin_order_detail' order.id %}" class="text-blue-600 hover:text-blue-900">
                             <span class="px-2 inline-flex text-xs leading-5 font-semibold {% if order.status == 'completed' %}bg-green-100 text-green-800{% elif order.status == 'pending' %}bg-yellow-100 text-yellow-800{% else %}bg-red-100 text-red-800{% endif %} rounded-full">
                                 {{ order.get_status_display }}
                             </span>
                         </a>
-                    </td>
+                    </td> -->
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="text-sm text-gray-900">
                             {{ order.created_at|date:"M j, Y" }}
@@ -97,7 +97,7 @@
                         </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        ${{ order.total_amount|floatformat:2 }}
+                        ${{ order.grand_total|floatformat:2 }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         {% with status_class=order.get_status_display|lower %}

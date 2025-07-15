@@ -36,12 +36,10 @@ def admin_login(request):
     
     return render(request, 'admin/login.html')
 
-
 def admin_logout(request):
     """Custom logout view for admin"""
     logout(request)
     return redirect('custom_admin:admin_login')
-
 
 @login_required
 def admin_dashboard(request):
@@ -285,7 +283,6 @@ def admin_product_detail(request, product_id):
     
     return render(request, 'admin/product_detail.html', context)
 
-
 @login_required
 def admin_orders(request):
     """Admin orders management view"""
@@ -344,7 +341,6 @@ def admin_orders(request):
     }
     
     return render(request, 'admin/orders.html', context)
-
 
 @login_required
 def admin_customers(request):
