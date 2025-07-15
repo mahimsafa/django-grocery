@@ -135,6 +135,30 @@ def admin_customer_detail(request, customer_id):
     
     return render(request, 'admin/customer_detail.html', context)
 
+@login_required
+def admin_order_detail(request, order_id):
+    """Admin order detail view"""
+    if not request.user.is_staff:
+        return redirect('custom_admin:admin_login')
+    
+    order = get_object_or_404(Order, id=order_id)
+    
+    # Get order items with product details
+    order_items = OrderItem.objects.filter(order=order).select_related('variant__product')
+    
+    # Calculate subtotal
+    subtotal = order_items.aggregate(Sum('total_price'))['total_price__sum'] or Decimal('0')
+    
+    context = {
+        'order': order,
+        'order_items': order_items,
+        'subtotal': subtotal,
+        'shipping_address': order.shipping_address,
+        'billing_address': order.billing_address,
+    }
+    
+    return render(request, 'admin/order_detail.html', context)
+
     # Get the product IDs from the top variants
     product_ids = [item['variant__product'] for item in top_variants]
     
