@@ -71,16 +71,18 @@
                 <tr class="hover:bg-gray-50">
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="flex items-center">
-                            <div class="flex-shrink-0 h-10 w-10">
+                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
                                 {% with product.images.first as image %}
-                                <img class="h-10 w-10 rounded-md object-cover" 
+                                <img class="h-10 w-10 rounded-full object-cover" 
                                      src="{% if image %}{{ image.image.url }}{% else %}https://via.placeholder.com/40{% endif %}" 
                                      alt="{{ product.name }}">
                                 {% endwith %}
                             </div>
                             <div class="ml-4">
                                 <div class="text-sm font-medium text-gray-900">
-                                    <a href="#" class="hover:text-blue-600">{{ product.name }}</a>
+                                    <a href="{% url 'custom_admin:admin_product_detail' product.id %}" class="text-blue-600 hover:text-blue-900">
+                                        {{ product.name }}
+                                    </a>
                                 </div>
                                 <div class="text-sm text-gray-500">
                                     {{ product.brand.name|default:"No Brand" }}

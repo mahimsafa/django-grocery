@@ -254,6 +254,36 @@ def admin_products(request):
     }
     
     return render(request, 'admin/products.html', context)
+    
+@login_required
+def admin_product_detail(request, product_id):
+    """Admin product detail view"""
+    if not request.user.is_staff:
+        return redirect('custom_admin:admin_login')
+    
+    product = get_object_or_404(Product, id=product_id)
+    
+    # Get variants with stock information
+    variants = Variant.objects.filter(product=product).select_related('product')
+    
+    # Get recent orders for this product
+    recent_orders = OrderItem.objects.filter(
+        variant__product=product
+    ).select_related('order', 'variant').order_by('-order__created_at')[:5]
+    
+    # Calculate total sold quantity
+    total_sold = OrderItem.objects.filter(variant__product=product).aggregate(
+        total=Sum('quantity')
+    )['total'] or 0
+    
+    context = {
+        'product': product,
+        'variants': variants,
+        'recent_orders': recent_orders,
+        'total_sold': total_sold,
+    }
+    
+    return render(request, 'admin/product_detail.html', context)
 
 
 @login_required
