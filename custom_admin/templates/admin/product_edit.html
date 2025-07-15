@@ -1,0 +1,198 @@
+{% extends 'admin/base.html' %}
+{% load i18n %}
+
+{% block title %}Edit Product - {{ product.name }}{% endblock %}
+
+{% block page_title %}Edit Product - {{ product.name }}{% endblock %}
+
+{% block content %}
+<div class="max-w-8xl mx-auto py-4 sm:px-4 lg:px-6">
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-4 sm:px-6 flex justify-between items-center">
+            <div>
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Product Information</h3>
+                <p class="mt-1 max-w-2xl text-sm text-gray-500">Update product details and variants</p>
+            </div>
+            <a href="{% url 'custom_admin:admin_product_detail' product.id %}" 
+               class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
+                </svg>
+                Back to Product
+            </a>
+        </div>
+        <div class="border-t border-gray-200 px-0 py-4 md:px-4 ">
+            <form method="POST" class="space-y-6 divide-y divide-gray-200">
+                {% csrf_token %}
+                
+                <div class="pt-6">
+                    <div>
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">Basic Information</h3>
+                        <p class="mt-2 text-sm text-gray-500">Update the core product details</p>
+                    </div>
+
+                    <div class="mt-6 grid grid-cols-1 gap-y-5 gap-x-4 sm:grid-cols-6">
+                        <div class="sm:col-span-6">
+                            <label for="name" class="block text-sm font-medium text-gray-700">Product Name</label>
+                            <div class="mt-2">
+                                <input type="text" name="name" id="name" 
+                                       value="{{ product.name }}"
+                                       class="block w-full rounded-md outline-none border border-gray-300 shadow-sm focus:border-blue-500  sm:text-sm px-2 py-1">
+                            </div>
+                        </div>
+
+                        <div class="sm:col-span-6">
+                            <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+                            <div class="mt-2">
+                                <textarea name="description" id="description" rows="4"
+                                          class="block w-full rounded-md outline-none border border-gray-300 shadow-sm focus:border-blue-500 sm:text-sm px-2 py-1">
+                                    {{ product.description }}
+                                </textarea>
+                            </div>
+                        </div>
+
+                        <div class="sm:col-span-6">
+                            <label for="price" class="block text-sm font-medium text-gray-700">Price</label>
+                            <div class="mt-2">
+                                <div class="relative rounded-md shadow-sm">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <span class="text-gray-500 sm:text-sm">$</span>
+                                    </div>
+                                    <input type="number" step="0.01" name="price" id="price" 
+                                           value="{{ product.price }}"
+                                           class="block w-full pl-9 pr-12 sm:text-sm outline-none border border-gray-300 rounded-md focus:border-blue-500 px-2 py-1">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="sm:col-span-2">
+                            <label for="stock" class="block text-sm font-medium text-gray-700">Stock</label>
+                            <div class="mt-2">
+                                <input type="number" name="stock" id="stock" 
+                                       value="{{ product.stock }}"
+                                       class="block w-full rounded-md outline-none border border-gray-300 shadow-sm focus:border-blue-500 sm:text-sm px-2 py-1">
+                            </div>
+                        </div>
+
+                        <div class="sm:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700">Category</label>
+                            <div class="mt-2">
+                                <select name="category" id="category" 
+                                        class="block w-full rounded-md outline-none border border-gray-300 shadow-sm focus:border-blue-500 sm:text-sm px-2 py-1">
+                                    <option value="">Select a category</option>
+                                    {% for category in categories %}
+                                    <option value="{{ category.id }}" {% if category.id == product.category.id %}selected{% endif %}>
+                                        {{ category.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="sm:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700">Brand</label>
+                            <div class="mt-2">
+                                <select name="brand" id="brand" 
+                                        class="block w-full rounded-md outline-none border border-gray-300 shadow-sm focus:border-blue-500 sm:text-sm px-2 py-1">
+                                    <option value="">Select a brand</option>
+                                    {% for brand in brands %}
+                                    <option value="{{ brand.id }}" {% if brand.id == product.brand.id %}selected{% endif %}>
+                                        {{ brand.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="sm:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700">Status</label>
+                            <div class="mt-2">
+                                <select name="is_active" id="is_active" 
+                                        class="block w-full rounded-md outline-none border border-gray-300 shadow-sm focus:border-blue-500 sm:text-sm px-2 py-1">
+                                    <option value="True" {% if product.is_active %}selected{% endif %}>Active</option>
+                                    <option value="False" {% if not product.is_active %}selected{% endif %}>Inactive</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-6">
+                    <div>
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">Product Variants</h3>
+                        <p class="mt-2 text-sm text-gray-500">Manage product variants and their pricing</p>
+                    </div>
+
+                    <div class="mt-6">
+                        {% for variant in variants %}
+                        <div class="bg-gray-50 shadow-sm rounded-lg mb-4">
+                            <div class="px-4 py-4 sm:px-6">
+                                <h3 class="text-lg leading-6 font-medium text-gray-900">Variant: {{ variant.name }}</h3>
+                            </div>
+                            <div class="border-t border-gray-200">
+                                <div class="px-4 py-4 sm:px-6">
+                                    <div class="grid grid-cols-1 gap-y-5 gap-x-4 sm:grid-cols-6">
+                                        <input type="hidden" name="variant_ids" value="{{ variant.id }}">
+
+                                        <div class="sm:col-span-4">
+                                            <label class="block text-sm font-medium text-gray-700">Variant Name</label>
+                                            <div class="mt-2">
+                                                <input type="text" name="variant_name_{{ variant.id }}" 
+                                                       value="{{ variant.name }}"
+                                                       class="block w-full rounded-md outline-none border border-gray-300 shadow-sm focus:border-blue-500 sm:text-sm px-2 py-1">
+                                            </div>
+                                        </div>
+
+                                        <div class="sm:col-span-2">
+                                            <label class="block text-sm font-medium text-gray-700">Price</label>
+                                            <div class="mt-2">
+                                                <div class="relative rounded-md shadow-sm">
+                                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                        <span class="text-gray-500 sm:text-sm">$</span>
+                                                    </div>
+                                                    <input type="number" step="0.01" name="variant_price_{{ variant.id }}" 
+                                                           value="{{ variant.price }}"
+                                                           class="block w-full pl-9 pr-12 sm:text-sm outline-none border border-gray-300 rounded-md focus:border-blue-500 px-2 py-1">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="sm:col-span-2">
+                                            <label class="block text-sm font-medium text-gray-700">Stock</label>
+                                            <div class="mt-2">
+                                                <input type="number" name="variant_stock_{{ variant.id }}" 
+                                                       value="{{ variant.stock }}"
+                                                       class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-2 py-1">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="pt-5">
+                    <div class="flex justify-end">
+                        <a href="{% url 'custom_admin:admin_product_detail' product.id %}" 
+                           class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
+                            </svg>
+                            Cancel
+                        </a>
+                        <button type="submit" 
+                                class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            Save Changes
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

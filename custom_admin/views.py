@@ -9,13 +9,11 @@ from django.db.models import Sum, Count, F, Q
 from django.core.paginator import Paginator
 from datetime import datetime, timedelta
 from decimal import Decimal
-from collections import defaultdict
 
 # Import models
-from product.models import Product, Variant, Category
+from product.models import Product, Variant, Category, Brand
 from order.models import Order, OrderItem
 from customer.models import Customer
-
 
 def admin_login(request):
     """Custom login view for admin"""
@@ -282,6 +280,55 @@ def admin_product_detail(request, product_id):
     }
     
     return render(request, 'admin/product_detail.html', context)
+
+@login_required
+def admin_product_edit(request, product_id):
+    """Admin product edit view"""
+    if not request.user.is_staff:
+        return redirect('custom_admin:admin_login')
+    
+    product = get_object_or_404(Product, id=product_id)
+    
+    if request.method == 'POST':
+        # Handle form submission
+        product.name = request.POST.get('name', product.name)
+        product.sku = request.POST.get('sku', product.sku)
+        product.description = request.POST.get('description', product.description)
+        product.price = Decimal(request.POST.get('price', product.price))
+        product.stock = int(request.POST.get('stock', product.stock))
+        product.is_active = bool(request.POST.get('is_active', product.is_active))
+        product.category_id = request.POST.get('category', product.category_id)
+        product.brand_id = request.POST.get('brand', product.brand_id)
+        
+        # Save the product
+        product.save()
+        
+        # Handle variant updates
+        for variant_id in request.POST.getlist('variant_ids'):
+            variant = get_object_or_404(Variant, id=variant_id, product=product)
+            variant.name = request.POST.get(f'variant_name_{variant_id}', variant.name)
+            variant.price = Decimal(request.POST.get(f'variant_price_{variant_id}', variant.price))
+            variant.stock = int(request.POST.get(f'variant_stock_{variant_id}', variant.stock))
+            variant.save()
+        
+        messages.success(request, 'Product updated successfully')
+        return redirect('custom_admin:admin_product_detail', product_id=product_id)
+    
+    # Get all categories and brands for dropdowns
+    categories = Category.objects.all()
+    brands = Brand.objects.all()
+    
+    # Get variants with their current values
+    variants = Variant.objects.filter(product=product).select_related('product')
+    
+    context = {
+        'product': product,
+        'categories': categories,
+        'brands': brands,
+        'variants': variants,
+    }
+    
+    return render(request, 'admin/product_edit.html', context)
 
 @login_required
 def admin_orders(request):
