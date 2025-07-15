@@ -71,6 +71,18 @@ wheels = [
 ]
 
 [[package]]
+name = "django-unfold"
+version = "0.62.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "django" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/23/cd/a50fe52cd1cad37dec0c437ed179c218bc7534fece9c1da266bcc62118c6/django_unfold-0.62.0.tar.gz", hash = "sha256:fa931018b5c3f501b589d1785c430964a5b37ab1259ecb3ccb516efe075311bc", size = 1064095 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/8f/e4/d88e06cdacb883d329f01757133858a5527ae0be4913525f77883ddf1b8b/django_unfold-0.62.0-py3-none-any.whl", hash = "sha256:58889ba0069cd272a471458a48b4c86b5e5580649fe50a8b21543bf2d82f18fd", size = 1170897 },
+]
+
+[[package]]
 name = "djangorestframework"
 version = "3.16.0"
 source = { registry = "https://pypi.org/simple" }
@@ -103,6 +115,7 @@ dependencies = [
     { name = "django-environ" },
     { name = "django-filter" },
     { name = "django-mptt" },
+    { name = "django-unfold" },
     { name = "djangorestframework" },
     { name = "faker" },
     { name = "markdown" },
@@ -116,6 +129,7 @@ requires-dist = [
     { name = "django-environ", specifier = ">=0.12.0" },
     { name = "django-filter", specifier = ">=25.1" },
     { name = "django-mptt", specifier = ">=0.17.0" },
+    { name = "django-unfold", specifier = ">=0.62.0" },
     { name = "djangorestframework", specifier = ">=3.16.0" },
     { name = "faker", specifier = ">=37.4.0" },
     { name = "markdown", specifier = ">=3.8.2" },
