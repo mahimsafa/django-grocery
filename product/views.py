@@ -1,8 +1,8 @@
 from rest_framework import generics
 from rest_framework.pagination import PageNumberPagination
 from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
-from .models import Product
-from .serializers import ProductSerializer
+from .models import Product, Category, Brand
+from .serializers import ProductSerializer, CategorySerializer, BrandSerializer
 
 class ProductPagination(PageNumberPagination):
     page_size = 10
@@ -31,4 +31,26 @@ class ProductDetailView(generics.RetrieveAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     lookup_field = 'slug'
+    pagination_class = ProductPagination
+
+class CategoryListView(generics.ListAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    pagination_class = ProductPagination
+
+class CategoryDetailView(generics.RetrieveAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    lookup_field = 'slug'
+    pagination_class = ProductPagination
+
+class BrandListView(generics.ListAPIView):
+    queryset = Brand.objects.all()
+    serializer_class = BrandSerializer
+    pagination_class = ProductPagination
+
+class BrandDetailView(generics.RetrieveAPIView):
+    queryset = Brand.objects.all()
+    serializer_class = BrandSerializer
+    lookup_field = 'id'
     pagination_class = ProductPagination
